@@ -5,8 +5,8 @@ import org.bson.Document
 import java.util.*
 
 fun main() {
-//    val crawler = MovieCrawler()
-//    crawler.start()
+    val crawler = MovieCrawler()
+    crawler.start()
 
     testMongoDb()
 }
