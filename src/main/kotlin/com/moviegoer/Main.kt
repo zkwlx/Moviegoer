@@ -8,7 +8,7 @@ fun main() {
     val crawler = MovieCrawler()
     crawler.start()
 
-    testMongoDb()
+//    testMongoDb()
 }
 
 fun testMongoDb() {

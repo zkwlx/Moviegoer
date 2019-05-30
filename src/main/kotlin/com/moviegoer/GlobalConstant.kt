@@ -1,5 +1,6 @@
 package com.moviegoer
 
+//val COUNTRY_LIST = arrayOf("丹麦")
 val COUNTRY_LIST = arrayOf(
     "中国大陆",
     "美国",
@@ -24,7 +25,3 @@ val COUNTRY_LIST = arrayOf(
     "丹麦"
 )
 
-val AGENT_LIST = arrayOf(
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36F",
-    ""
-)
