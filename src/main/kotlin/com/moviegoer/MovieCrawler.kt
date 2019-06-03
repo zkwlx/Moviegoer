@@ -3,14 +3,18 @@ package com.moviegoer
 import com.demo.Utils
 import com.google.gson.JsonParser
 import com.moviegoer.UrlProvider.walkCountryAndRank
+import com.moviegoer.utils.Log
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import okhttp3.*
+import org.bson.Document
 import java.io.IOException
+import java.lang.Exception
 import kotlin.random.Random
 
 class MovieCrawler {
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun requester(client: OkHttpClient, url: String): Int {
         val request = Request.Builder()
             .url(url)
@@ -19,31 +23,52 @@ class MovieCrawler {
             .method("GET", null)
             .build()
         val call = client.newCall(request)
-        call.enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
+        val response: Response
+        //TODO 增加重试功能
+        try {
+            response = call.execute()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return ERROR_REQUEST
+        }
+        var listLength = 0
+        response.use {
+            val parser = JsonParser()
+            val content = it.body()?.string()
+            Log.i("------------$content")
+            val docList = mutableListOf<Document>()
+            val element = parser.parse(content)
+            if (element.isJsonNull) {
+                Log.e("content: $content")
+                return ERROR_NULL_JSON
             }
-            override fun onResponse(call: Call, response: Response) {
-                val requestUrl = call.request().url()
-                val parser = JsonParser()
-                response.let {
-                    println("$requestUrl")
-                    val content = it.body()?.string()
-                    println("---------$content----------")
-                    val element = parser.parse(content)
-                    element.let { ele ->
-                        val a = ele.asJsonObject
-                    }
-                }
+            val data = element.asJsonObject["data"]
+            data.asJsonArray.forEach { item ->
+                docList.add(Document.parse(item.toString()))
             }
-
-        })
-        delay(Random.nextLong(50, 500))
-        return 0
+            listLength = docList.size
+            if (docList.isNotEmpty()) {
+//                MongoPersistency.insertMany(docList)
+            }
+        }
+        delay(Random.nextLong(500, 3000))
+        return listLength
     }
 
+    private val cookieMap = mutableMapOf<HttpUrl, List<Cookie>>()
+
     fun start() {
-        val client = OkHttpClient()
+        val builder = OkHttpClient.Builder()
+        val client = builder.cookieJar(object : CookieJar {
+            override fun saveFromResponse(url: HttpUrl, cookies: MutableList<Cookie>) {
+                cookieMap[url] = cookies
+            }
+
+            override fun loadForRequest(url: HttpUrl): MutableList<Cookie> {
+                return cookieMap[url] as MutableList<Cookie>
+            }
+        }).build()
+
 
         runBlocking {
             walkCountryAndRank { requester(client, it) }

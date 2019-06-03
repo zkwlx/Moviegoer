@@ -21,7 +21,10 @@ val COUNTRY_LIST = arrayOf(
     "澳大利亚",
     "爱尔兰",
     "瑞典",
-    "巴西",
-    "丹麦"
+    "巴西"
+//    "丹麦"
 )
+
+const val ERROR_REQUEST = -1
+const val ERROR_NULL_JSON = -1
 
