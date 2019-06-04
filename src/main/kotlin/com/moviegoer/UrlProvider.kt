@@ -6,6 +6,35 @@ object UrlProvider {
 
     private const val ONE_PAGE_COUNT = 20
 
+    private var countryIndex = 0
+    // 跳过0~1分数的电影，都是没有评分的电影
+    private var rank = 0
+    //TODO test
+    /**
+     * 根据 offset 自动创建下一个 url，当返回空字符串时，说明遍历结束，没有 next 了
+     */
+    fun next(offset: Int): String {
+        if (offset == 0) {
+            nextRankOrCountry()
+        }
+        return if (countryIndex >= COUNTRY_LIST.size) ""
+        else makeUrl(rank, rank + 1, COUNTRY_LIST[countryIndex], offset)
+    }
+
+    fun reset() {
+        countryIndex = 0
+        rank = 0
+    }
+
+    private fun nextRankOrCountry() {
+        if (rank == 9) {
+            countryIndex += 1
+            rank = 0
+        } else {
+            rank += 1
+        }
+    }
+
     suspend fun walkCountryAndRank(fetchAction: suspend (String) -> Int) {
         COUNTRY_LIST.forEach { country ->
             if (isStartPointCountry(country)) {

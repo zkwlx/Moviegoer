@@ -16,6 +16,7 @@ class MovieCrawler {
 
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun requester(client: OkHttpClient, url: String): Int {
+        client.proxySelector()
         val request = Request.Builder()
             .url(url)
             .addHeader("User-Agent", AgentProvider.next())
@@ -59,16 +60,7 @@ class MovieCrawler {
 
     fun start() {
         val builder = OkHttpClient.Builder()
-        val client = builder.cookieJar(object : CookieJar {
-            override fun saveFromResponse(url: HttpUrl, cookies: MutableList<Cookie>) {
-                cookieMap[url] = cookies
-            }
-
-            override fun loadForRequest(url: HttpUrl): MutableList<Cookie> {
-                return cookieMap[url] as MutableList<Cookie>
-            }
-        }).build()
-
+        val client = builder.build()
 
         runBlocking {
             walkCountryAndRank { requester(client, it) }
