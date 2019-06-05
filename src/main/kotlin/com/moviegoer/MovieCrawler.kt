@@ -34,7 +34,7 @@ class MovieCrawler {
                 break
             }
             // 批量插入 mongodb
-//            MongoPersistency.insertMany(docList)
+            MongoPersistency.insertMany(docList)
             // 准备下一轮循环
             val log = { prefix: String -> Log.i("[$prefix]：url:$url") }
             if (docList.size < COUNT) {
@@ -57,7 +57,7 @@ class MovieCrawler {
             } else {
                 loopTimes++
                 // 随机延迟
-                delay(Random.nextLong(500, 3000))
+                delay(Random.nextLong(1000, 5000))
             }
         }
     }
