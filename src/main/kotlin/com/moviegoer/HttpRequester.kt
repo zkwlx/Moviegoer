@@ -32,7 +32,6 @@ object HttpRequester {
     @Suppress("BlockingMethodInNonBlockingContext")
     @Nullable
     private suspend fun request(client: OkHttpClient, url: String): JsonElement? {
-        client.proxySelector()
         val request = Request.Builder()
             .url(url)
             .addHeader("User-Agent", AgentProvider.next())
