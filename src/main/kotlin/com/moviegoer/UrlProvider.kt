@@ -2,8 +2,6 @@ package com.moviegoer
 
 object UrlProvider {
 
-    private const val ONE_PAGE_COUNT = 20
-
     private var countryIndex = 0
     // 跳过0~1分数的电影，都是没有评分的电影
     private var rank = 0

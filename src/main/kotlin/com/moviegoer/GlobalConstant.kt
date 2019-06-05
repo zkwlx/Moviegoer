@@ -24,7 +24,3 @@ val COUNTRY_LIST = arrayOf(
     "巴西"
 //    "丹麦"
 )
-
-const val ERROR_REQUEST = -1
-const val ERROR_NULL_JSON = -1
-

@@ -1,31 +1,52 @@
 package com.moviegoer
 
 import com.moviegoer.utils.Log
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import okhttp3.OkHttpClient
-import org.bson.Document
+import kotlin.random.Random
 
 class MovieCrawler {
 
-    fun start() {
-        val builder = OkHttpClient.Builder()
-        val client = builder.build()
+    private val COUNT = 20
 
-        runBlocking {
-            var offset = 0
-            while (true) {
-                val url = UrlProvider.next(offset)
-                val element = HttpRequester.requestBrief(url)
-                if (element == null) {
-                    Log.e("请求失败： $url")
-                    break
-                }
-                val data = element.asJsonObject["data"]
-                val docList = mutableListOf<Document>()
-                data.asJsonArray.forEach { item ->
-                    docList.add(Document.parse(item.toString()))
-                }
+    fun start() = runBlocking {
+
+        var offset = 0
+        // 设置续传点
+        UrlProvider.setStartPoint(2, 7)
+        offset = 760
+
+        while (true) {
+            // 取得下一个 url
+            val url = UrlProvider.next(offset)
+            // 获取 url 的 http 请求返回值
+            val content = HttpRequester.requestBrief(url)
+            if (content == null) {
+                Log.e("请求失败，content == null： $url")
+                break
             }
+            // 将 json 解析成 document list
+            val docList = MongoPersistency.parseToDocumentList(content)
+            if (docList == null) {
+                Log.e("解析失败，url:$url, content:$content")
+                break
+            }
+            // 批量插入 mongodb
+            MongoPersistency.insertMany(docList)
+            // 准备下一轮循环
+            val log = { prefix: String -> Log.i("[$prefix]：url:$url") }
+            if (docList.size < COUNT) {
+                log("完成！")
+                offset = 0
+            } else if (docList.size == COUNT) {
+                log("继续~")
+                offset += COUNT
+            } else {
+                log("终止_页数超过20!")
+                break
+            }
+            // 随机延迟
+            delay(Random.nextLong(500, 3000))
         }
     }
 }
