@@ -16,6 +16,8 @@ class MovieCrawler {
         UrlProvider.setStartPoint(2, 7)
         offset = 760
 
+        var loopTimes = 0
+
         while (true) {
             // 取得下一个 url
             val url = UrlProvider.next(offset)
@@ -32,7 +34,7 @@ class MovieCrawler {
                 break
             }
             // 批量插入 mongodb
-            MongoPersistency.insertMany(docList)
+//            MongoPersistency.insertMany(docList)
             // 准备下一轮循环
             val log = { prefix: String -> Log.i("[$prefix]：url:$url") }
             if (docList.size < COUNT) {
@@ -45,8 +47,18 @@ class MovieCrawler {
                 log("终止_页数超过20!")
                 break
             }
-            // 随机延迟
-            delay(Random.nextLong(500, 3000))
+
+            if (loopTimes > 330) {
+                loopTimes = 0
+                HttpRequester.resetClient()
+                Log.i("请求好多次了，休息一下~")
+                // 每 300 次休息1分钟
+                delay(60000)
+            } else {
+                loopTimes++
+                // 随机延迟
+                delay(Random.nextLong(500, 3000))
+            }
         }
     }
 }

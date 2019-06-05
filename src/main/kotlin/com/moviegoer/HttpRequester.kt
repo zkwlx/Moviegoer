@@ -1,16 +1,30 @@
 package com.moviegoer
 
-import com.demo.Utils
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import org.jetbrains.annotations.Nullable
+import okhttp3.*
 import java.lang.Exception
 
 object HttpRequester {
 
     private val builder: OkHttpClient.Builder = OkHttpClient.Builder()
-    private val client = builder.build()
+    private lateinit var client: OkHttpClient
+
+    private val cookieMap = mutableMapOf<HttpUrl, MutableList<Cookie>>()
+
+    init {
+        resetClient()
+    }
+
+    fun resetClient() {
+        client = builder.build()
+//        client = builder.cookieJar(object : CookieJar {
+//            override fun saveFromResponse(url: HttpUrl, cookies: MutableList<Cookie>) {
+//                cookieMap[url] = cookies
+//            }
+//            override fun loadForRequest(url: HttpUrl): MutableList<Cookie>? {
+//                return cookieMap[url]
+//            }
+//        }).build()
+    }
 
     fun requestBrief(url: String): String? {
         var content: String? = null
@@ -23,11 +37,10 @@ object HttpRequester {
     }
 
     @Suppress("BlockingMethodInNonBlockingContext")
-    @Nullable
     private fun request(url: String): String? {
         val request = Request.Builder().url(url).method("GET", null)
             .addHeader("User-Agent", AgentProvider.next())
-            .addHeader("Cookie", "bid=${Utils.randomStr(11)};")
+//            .addHeader("Cookie", "bid=${Utils.randomStr(11)};")
             .build()
         val call = client.newCall(request)
         val response: Response
