@@ -104,7 +104,7 @@
 //            val file = File("./电影/$country[$i-${i + 1}].txt")
 //            file.parentFile.mkdirs()
 //            if (file.exists()) {
-//                file.delete()
+//                file.dropCurrent()
 //            }
 //            file.createNewFile()
 //            val writer = file.bufferedWriter()

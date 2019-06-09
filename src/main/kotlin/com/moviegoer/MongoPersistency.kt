@@ -1,5 +1,6 @@
 package com.moviegoer
 
+import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import com.mongodb.client.MongoClients
 import com.mongodb.client.MongoCollection
@@ -19,8 +20,8 @@ object MongoPersistency {
             val mongoClient = MongoClients.create()
             // 连接到数据库
             mongodb = mongoClient.getDatabase("movie")
-            println("Connect to database successfully")
-            colBrief = mongodb.getCollection("test")
+            Log.i("Connect to database successfully")
+            colBrief = mongodb.getCollection("all")
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -34,8 +35,13 @@ object MongoPersistency {
 
     fun parseToDocumentList(content: String): MutableList<out Document>? {
         // 将 json 解析成 document list
-        val element = jsonParser.parse(content)
-        if (!element.isJsonObject) {
+        var element: JsonElement? = null
+        try {
+            element = jsonParser.parse(content)
+        } catch (e: Exception) {
+            Log.e("parse error $e:${e.message}")
+        }
+        if (element == null || !element.isJsonObject) {
             return null
         }
         val data = element.asJsonObject["data"]

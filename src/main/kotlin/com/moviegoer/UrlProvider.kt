@@ -4,17 +4,20 @@ object UrlProvider {
 
     private var countryIndex = 0
     // 跳过0~1分数的电影，都是没有评分的电影
-    private var rank = 0
+    private var rank = -1
 
     /**
      * 根据 offset 自动创建下一个 url，当返回空字符串时，说明遍历结束，没有 next 了
      */
     fun next(offset: Int): String {
         if (offset == 0) {
-            nextRankOrCountry()
+            nextRank()
         }
-        return if (countryIndex >= COUNTRY_LIST.size) ""
-        else makeUrl(rank, rank + 1, COUNTRY_LIST[countryIndex], offset)
+        return if (rank >= 10) ""
+        else makeUrl(rank, rank + 1, offset)
+
+        //用于查看 IP 代理是否生效
+//        return "http://pv.sohu.com/cityjson"
     }
 
     /**
@@ -31,7 +34,7 @@ object UrlProvider {
 
     fun reset() {
         countryIndex = 0
-        rank = 0
+        rank = -1
     }
 
     private fun nextRankOrCountry() {
@@ -43,12 +46,23 @@ object UrlProvider {
         }
     }
 
+    private fun nextRank() {
+        rank += 1
+    }
+
     private fun makeUrl(rangeBegin: Int, rangeFinal: Int, country: String, offset: Int): String {
         return "https://movie.douban.com/j/new_search_subjects?sort=R" +
                 "&range=$rangeBegin,$rangeFinal" +
                 "&tags=电影" +
                 "&start=$offset" +
                 "&countries=$country"
+    }
+
+    private fun makeUrl(rangeBegin: Int, rangeFinal: Int, offset: Int): String {
+        return "https://movie.douban.com/j/new_search_subjects?sort=R" +
+                "&range=$rangeBegin,$rangeFinal" +
+                "&tags=电影" +
+                "&start=$offset"
     }
 
 
