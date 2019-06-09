@@ -3,7 +3,7 @@ package com.moviegoer
 object UrlProvider {
 
     private var countryIndex = 0
-    // 跳过0~1分数的电影，都是没有评分的电影
+    //包含0~1分的电影
     private var rank = -1
 
     /**
@@ -11,10 +11,10 @@ object UrlProvider {
      */
     fun next(offset: Int): String {
         if (offset == 0) {
-            nextRank()
+            nextRankOrCountry()
         }
-        return if (rank >= 10) ""
-        else makeUrl(rank, rank + 1, offset)
+        return if (countryIndex >= COUNTRY_LIST.size) ""
+        else makeUrl(rank, rank + 1, COUNTRY_LIST[countryIndex], offset)
 
         //用于查看 IP 代理是否生效
 //        return "http://pv.sohu.com/cityjson"
@@ -40,14 +40,10 @@ object UrlProvider {
     private fun nextRankOrCountry() {
         if (rank == 9) {
             countryIndex += 1
-            rank = 1
+            rank = 0
         } else {
             rank += 1
         }
-    }
-
-    private fun nextRank() {
-        rank += 1
     }
 
     private fun makeUrl(rangeBegin: Int, rangeFinal: Int, country: String, offset: Int): String {
@@ -56,6 +52,10 @@ object UrlProvider {
                 "&tags=电影" +
                 "&start=$offset" +
                 "&countries=$country"
+    }
+
+    private fun nextRank() {
+        rank += 1
     }
 
     private fun makeUrl(rangeBegin: Int, rangeFinal: Int, offset: Int): String {

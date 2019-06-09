@@ -1,6 +1,5 @@
 package com.moviegoer
 
-//val COUNTRY_LIST = arrayOf("丹麦")
 val COUNTRY_LIST = arrayOf(
     "中国大陆",
     "美国",
@@ -21,6 +20,6 @@ val COUNTRY_LIST = arrayOf(
     "澳大利亚",
     "爱尔兰",
     "瑞典",
-    "巴西"
-//    "丹麦"
+    "巴西",
+    "丹麦"
 )
