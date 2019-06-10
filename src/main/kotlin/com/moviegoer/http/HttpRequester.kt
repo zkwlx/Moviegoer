@@ -8,6 +8,7 @@ import okhttp3.*
 import java.io.IOException
 import java.lang.Exception
 import java.net.*
+import java.util.concurrent.TimeUnit
 
 object HttpRequester {
 
@@ -33,7 +34,7 @@ object HttpRequester {
             override fun connectFailed(uri: URI?, sa: SocketAddress?, ioe: IOException?) {
                 ProxyPool.dropCurrent(sa)
             }
-        }).build()
+        }).connectTimeout(5, TimeUnit.SECONDS).build()
 
     }
 
