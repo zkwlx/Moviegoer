@@ -2,9 +2,11 @@ package com.moviegoer
 
 object UrlProvider {
 
+    private const val INITIAL_RANK = 0
+
     private var countryIndex = 0
-    //包含0~1分的电影
-    private var rank = -1
+    // 先排除 0~1 分的电影
+    private var rank = INITIAL_RANK
 
     /**
      * 根据 offset 自动创建下一个 url，当返回空字符串时，说明遍历结束，没有 next 了
@@ -34,13 +36,13 @@ object UrlProvider {
 
     fun reset() {
         countryIndex = 0
-        rank = -1
+        rank = INITIAL_RANK
     }
 
     private fun nextRankOrCountry() {
         if (rank == 9) {
             countryIndex += 1
-            rank = 0
+            rank = INITIAL_RANK + 1
         } else {
             rank += 1
         }
