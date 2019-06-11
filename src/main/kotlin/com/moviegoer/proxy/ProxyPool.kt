@@ -1,4 +1,4 @@
-package com.moviegoer
+package com.moviegoer.proxy
 
 import com.moviegoer.utils.Log
 import okhttp3.OkHttpClient
@@ -26,7 +26,8 @@ object ProxyPool {
         var times = 5
         var content: String? = null
         while (times > 0) {
-            content = request(POOL_URL + GET_METHOD)
+            content =
+                request(POOL_URL + GET_METHOD)
             if (content.isNullOrEmpty()) {
                 times--
             } else {

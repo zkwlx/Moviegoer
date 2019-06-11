@@ -1,4 +1,4 @@
-package com.moviegoer
+package com.moviegoer.db
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
@@ -12,6 +12,7 @@ object MongoPersistency {
 
     private lateinit var mongodb: MongoDatabase
     private lateinit var colBrief: MongoCollection<Document>
+    private lateinit var colDetail: MongoCollection<Document>
     private var jsonParser: JsonParser = JsonParser()
 
     init {
@@ -22,12 +23,13 @@ object MongoPersistency {
             mongodb = mongoClient.getDatabase("movie")
             Log.i("Connect to database successfully")
             colBrief = mongodb.getCollection("all")
+            colDetail = mongodb.getCollection("detail")
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    fun insertMany(list: MutableList<out Document>) {
+    fun insertManyBriefs(list: MutableList<out Document>) {
         if (list.isNotEmpty()) {
             colBrief.insertMany(list)
         }

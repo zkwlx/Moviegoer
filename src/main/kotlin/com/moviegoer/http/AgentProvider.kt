@@ -1,4 +1,4 @@
-package com.moviegoer
+package com.moviegoer.http
 
 import kotlin.random.Random
 

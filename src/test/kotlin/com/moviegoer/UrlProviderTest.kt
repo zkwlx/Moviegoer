@@ -1,5 +1,6 @@
 package com.moviegoer
 
+import com.moviegoer.http.UrlProvider
 import org.junit.Test
 import java.lang.IllegalArgumentException
 import kotlin.test.assertEquals

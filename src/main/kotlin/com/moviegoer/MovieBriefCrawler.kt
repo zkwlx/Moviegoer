@@ -1,12 +1,15 @@
 package com.moviegoer
 
+import com.moviegoer.db.MongoPersistency
 import com.moviegoer.http.HttpRequester
+import com.moviegoer.http.UrlProvider
+import com.moviegoer.proxy.ProxyPool
 import com.moviegoer.utils.Log
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlin.random.Random
 
-class MovieCrawler {
+class MovieBriefCrawler {
 
     fun start() = runBlocking {
         var offset = 0
@@ -42,7 +45,7 @@ class MovieCrawler {
                 continue
             }
             // TODO 批量插入 mongodb
-            MongoPersistency.insertMany(docList)
+            MongoPersistency.insertManyBriefs(docList)
             // 准备下一轮循环
             val log = { prefix: String -> Log.i("[$prefix]：url:$url") }
             docList.size.let { size ->

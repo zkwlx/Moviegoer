@@ -1,6 +1,6 @@
 package com.moviegoer
 
 fun main() {
-    val crawler = MovieCrawler()
+    val crawler = MovieBriefCrawler()
     crawler.start()
 }

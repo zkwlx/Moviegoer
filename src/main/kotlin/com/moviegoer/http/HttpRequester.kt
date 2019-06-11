@@ -1,8 +1,7 @@
 package com.moviegoer.http
 
 import com.demo.Utils
-import com.moviegoer.AgentProvider
-import com.moviegoer.ProxyPool
+import com.moviegoer.proxy.ProxyPool
 import com.moviegoer.utils.Log
 import okhttp3.*
 import java.io.IOException

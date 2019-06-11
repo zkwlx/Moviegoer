@@ -1,4 +1,4 @@
-package com.moviegoer
+package com.moviegoer.http
 
 object UrlProvider {
 
@@ -16,7 +16,12 @@ object UrlProvider {
             nextRankOrCountry()
         }
         return if (countryIndex >= COUNTRY_LIST.size) ""
-        else makeUrl(rank, rank + 1, COUNTRY_LIST[countryIndex], offset)
+        else makeUrl(
+            rank,
+            rank + 1,
+            COUNTRY_LIST[countryIndex],
+            offset
+        )
 
         //用于查看 IP 代理是否生效
 //        return "http://pv.sohu.com/cityjson"
@@ -29,8 +34,8 @@ object UrlProvider {
         if (countryIndex >= COUNTRY_LIST.size || rank >= 9) {
             throw IllegalArgumentException("传入的参数有误，countryIndex：$countryIndex，rank：$rank")
         }
-        this.countryIndex = countryIndex
-        this.rank = rank
+        UrlProvider.countryIndex = countryIndex
+        UrlProvider.rank = rank
         return this
     }
 

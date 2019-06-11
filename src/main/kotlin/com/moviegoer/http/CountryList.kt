@@ -1,4 +1,4 @@
-package com.moviegoer
+package com.moviegoer.http
 
 val COUNTRY_LIST = arrayOf(
     "中国大陆",
