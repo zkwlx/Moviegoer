@@ -5,6 +5,7 @@ import com.google.gson.JsonParser
 import com.mongodb.client.MongoClients
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
+import com.mongodb.client.model.Filters.eq
 import com.moviegoer.utils.Log
 import org.bson.Document
 
@@ -32,6 +33,13 @@ object MongoPersistency {
     fun insertManyBriefs(list: MutableList<out Document>) {
         if (list.isNotEmpty()) {
             colBrief.insertMany(list)
+        }
+    }
+
+    fun find() {
+        //TODO 同样改成 next 操作？
+        colBrief.find().projection(Document("url", 1).append("_id", 0)).forEach {
+
         }
     }
 
