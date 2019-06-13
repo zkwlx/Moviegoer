@@ -28,7 +28,7 @@ class MovieBriefCrawler {
                 break
             }
             // 获取 url 的 http 请求返回值
-            val content = HttpRequester.requestBrief(url)
+            val content = HttpRequester.syncRequest(url)
             if (content == null) {
                 ProxyPool.dropCurrent()
                 isRetry = true

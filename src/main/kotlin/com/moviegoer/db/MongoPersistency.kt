@@ -4,6 +4,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import com.mongodb.client.MongoClients
 import com.mongodb.client.MongoCollection
+import com.mongodb.client.MongoCursor
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.Filters.eq
 import com.moviegoer.utils.Log
@@ -36,13 +37,6 @@ object MongoPersistency {
         }
     }
 
-    fun find() {
-        //TODO 同样改成 next 操作？
-        colBrief.find().projection(Document("url", 1).append("_id", 0)).forEach {
-
-        }
-    }
-
     fun parseToDocumentList(content: String): MutableList<out Document>? {
         // 将 json 解析成 document list
         var element: JsonElement? = null
@@ -60,6 +54,14 @@ object MongoPersistency {
             docList.add(Document.parse(item.toString()))
         }
         return docList
+    }
+
+    private val briefIterator: MongoCursor<Document> by lazy {
+        colBrief.find().projection(Document("url", 1).append("_id", 0)).iterator()
+    }
+
+    fun nextBrief(): Document? {
+        return briefIterator.tryNext()
     }
 
 }

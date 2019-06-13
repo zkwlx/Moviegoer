@@ -37,7 +37,7 @@ object HttpRequester {
 
     }
 
-    fun requestBrief(url: String): String? {
+    fun syncRequest(url: String): String? {
         var content: String? = null
         try {
             content = request(url)
