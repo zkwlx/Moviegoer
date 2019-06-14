@@ -37,19 +37,16 @@ class MovieDetailCrawler {
                 Log.e("请求失败，重试！content == null： $url")
                 continue
             }
-            //TODO 要改
             // 将 json 解析成 document list
-            val docList = MongoPersistency.parseToDocumentList(content)
-            if (docList == null) {
+            val doc = MongoPersistency.parseToDetail(content)
+            if (doc == null) {
                 ProxyPool.dropCurrent()
                 HttpRequester.resetClient()
                 isRetry = true
                 Log.e("解析失败，重试！url:$url, content:$content")
                 continue
             }
-            // TODO 要改
-            // TODO 批量插入 mongodb
-            MongoPersistency.insertManyBriefs(docList)
+            MongoPersistency.insertDetail(doc)
 
             // 随机延迟
             delay(Random.nextLong(300, 2000))

@@ -9,6 +9,7 @@ import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.Filters.eq
 import com.moviegoer.utils.Log
 import org.bson.Document
+import org.jsoup.Jsoup
 
 object MongoPersistency {
 
@@ -37,7 +38,7 @@ object MongoPersistency {
         }
     }
 
-    fun parseToDocumentList(content: String): MutableList<out Document>? {
+    fun parseToBriefsList(content: String): MutableList<out Document>? {
         // 将 json 解析成 document list
         var element: JsonElement? = null
         try {
@@ -54,6 +55,26 @@ object MongoPersistency {
             docList.add(Document.parse(item.toString()))
         }
         return docList
+    }
+
+    fun insertDetail(detail: Document) {
+        colDetail.insertOne(detail)
+    }
+
+    fun parseToDetail(content: String): Document? {
+        var started = false
+        val jsonString = StringBuilder()
+        content.lineSequence().forEach { line ->
+            if (started) {
+                if (line == "</script>")
+                    return@forEach
+                else
+                    jsonString.append(line)
+            } else if (line == "<script type=\"application/ld+json\">") {
+                started = true
+            }
+        }
+        return null
     }
 
     private val briefIterator: MongoCursor<Document> by lazy {

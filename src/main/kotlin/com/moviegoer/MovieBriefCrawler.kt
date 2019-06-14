@@ -36,7 +36,7 @@ class MovieBriefCrawler {
                 continue
             }
             // 将 json 解析成 document list
-            val docList = MongoPersistency.parseToDocumentList(content)
+            val docList = MongoPersistency.parseToBriefsList(content)
             if (docList == null) {
                 ProxyPool.dropCurrent()
                 HttpRequester.resetClient()
