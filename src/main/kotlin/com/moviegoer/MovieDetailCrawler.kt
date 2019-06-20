@@ -1,29 +1,36 @@
 package com.moviegoer
 
 import com.moviegoer.db.MongoPersistency
+import com.moviegoer.db.MongoPersistency.ERROR_MSG
 import com.moviegoer.http.HttpRequester
 import com.moviegoer.proxy.ProxyPool
 import com.moviegoer.utils.Log
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
 class MovieDetailCrawler {
 
-    fun startFast() {
+    fun startParallel() = runBlocking {
+        val jobs = mutableListOf<Job>()
         repeat(5) {
-            GlobalScope.launch {
+            jobs.add(GlobalScope.launch {
                 start()
-            }
+            })
+        }
+        jobs.forEach {
+            it.join()
         }
     }
 
+    private var totalCount: AtomicInteger = AtomicInteger(0)
+
     private suspend fun start() {
+
         var isRetry = false
         var url = ""
 
-        while (true) {
+        loop@ while (true) {
             if (!isRetry) {
                 // 取得下一个 url
                 url = ""
@@ -48,14 +55,25 @@ class MovieDetailCrawler {
             }
             // 将 json 解析成 document list
             val doc = MongoPersistency.parseToDetail(content)
-            if (doc == null) {
-                ProxyPool.dropCurrent()
-                HttpRequester.resetClient()
-                isRetry = true
-                Log.e("解析失败，重试！url:$url, content:$content")
-                continue
+            when (doc[ERROR_MSG]) {
+                "页面不存在" -> {
+                    Log.e("页面不存在，跳过！url:$url")
+                    continue@loop
+                }
+                "Json 解析失败" -> {
+                    ProxyPool.dropCurrent()
+                    HttpRequester.resetClient()
+                    isRetry = true
+                    Log.e("解析失败，重试！url:$url, content:$content")
+                    continue@loop
+                }
             }
             MongoPersistency.insertDetail(doc)
+            Log.i(doc.toJson())
+            val t = totalCount.incrementAndGet()
+            if (t % 500 == 0) {
+                Log.i("已经爬取 $t 个了！")
+            }
 
             // 随机延迟
             delay(Random.nextLong(300, 1000))
