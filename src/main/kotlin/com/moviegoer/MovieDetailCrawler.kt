@@ -4,13 +4,22 @@ import com.moviegoer.db.MongoPersistency
 import com.moviegoer.http.HttpRequester
 import com.moviegoer.proxy.ProxyPool
 import com.moviegoer.utils.Log
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 class MovieDetailCrawler {
 
-    fun start() = runBlocking {
+    fun startFast() {
+        repeat(5) {
+            GlobalScope.launch {
+                start()
+            }
+        }
+    }
+
+    private suspend fun start() {
         var isRetry = false
         var url = ""
 
@@ -26,7 +35,7 @@ class MovieDetailCrawler {
                 isRetry = false
             }
             if (url.isEmpty()) {
-                Log.i("爬取结束！")
+                Log.i("爬取结束 --> ${Thread.currentThread().name}")
                 break
             }
             // 获取 url 的 http 请求返回值
@@ -49,7 +58,7 @@ class MovieDetailCrawler {
             MongoPersistency.insertDetail(doc)
 
             // 随机延迟
-            delay(Random.nextLong(300, 2000))
+            delay(Random.nextLong(300, 1000))
         }
     }
 }

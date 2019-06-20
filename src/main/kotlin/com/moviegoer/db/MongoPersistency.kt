@@ -82,7 +82,9 @@ object MongoPersistency {
     }
 
     fun nextBrief(): Document? {
-        return briefIterator.tryNext()
+//        synchronized(this) {
+            return briefIterator.tryNext()
+//        }
     }
 
 }

@@ -35,6 +35,7 @@ object HttpRequester {
             }
         }).connectTimeout(5, TimeUnit.SECONDS).build()
 
+//        client = builder.build()
     }
 
     fun syncRequest(url: String): String? {
