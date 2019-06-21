@@ -73,6 +73,7 @@ class MovieDetailCrawler {
                 }
             }
             MongoPersistency.insertDetail(doc)
+
             Log.i(doc.toJson())
             val t = totalCount.incrementAndGet()
             if (t % 500 == 0) {
