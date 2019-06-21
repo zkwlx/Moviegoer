@@ -7,13 +7,13 @@ import java.net.InetSocketAddress
 import java.net.Proxy
 import java.net.SocketAddress
 
-object ProxyPool {
+class ProxyPool {
 
-    private const val POOL_URL = "http://127.0.0.1:5010/"
-    private const val GET_METHOD = "get"
-    private const val GET_ALL_METHOD = "get_all"
-    private const val GET_STATUS_METHOD = "get_status"
-    private const val DELETE_METHOD = "dropCurrent"
+    private val POOL_URL = "http://127.0.0.1:5010/"
+    private val GET_METHOD = "get"
+    private val GET_ALL_METHOD = "get_all"
+    private val GET_STATUS_METHOD = "get_status"
+    private val DELETE_METHOD = "dropCurrent"
 
     private val client = OkHttpClient.Builder().build()
 
@@ -26,8 +26,7 @@ object ProxyPool {
         var times = 5
         var content: String? = null
         while (times > 0) {
-            content =
-                request(POOL_URL + GET_METHOD)
+            content = request(POOL_URL + GET_METHOD)
             if (content.isNullOrEmpty()) {
                 times--
             } else {

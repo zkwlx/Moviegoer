@@ -9,7 +9,7 @@ import java.lang.Exception
 import java.net.*
 import java.util.concurrent.TimeUnit
 
-object HttpRequester {
+class HttpRequester(val proxy: ProxyPool) {
 
     private val builder: OkHttpClient.Builder = OkHttpClient.Builder()
     private lateinit var client: OkHttpClient
@@ -19,23 +19,23 @@ object HttpRequester {
     }
 
     fun resetClient() {
-        client = builder.proxySelector(object : ProxySelector() {
-            override fun select(uri: URI?): MutableList<Proxy> {
-                val proxy = ProxyPool.get()
-                Log.i("proxy: $proxy")
-                return if (proxy == null) {
-                    mutableListOf()
-                } else {
-                    mutableListOf(proxy)
-                }
-            }
+//        client = builder.proxySelector(object : ProxySelector() {
+//            override fun select(uri: URI?): MutableList<Proxy> {
+//                val proxy = proxy.get()
+//                Log.i("proxy: $proxy")
+//                return if (proxy == null) {
+//                    mutableListOf()
+//                } else {
+//                    mutableListOf(proxy)
+//                }
+//            }
+//
+//            override fun connectFailed(uri: URI?, sa: SocketAddress?, ioe: IOException?) {
+//                proxy.dropCurrent(sa)
+//            }
+//        }).connectTimeout(5, TimeUnit.SECONDS).build()
 
-            override fun connectFailed(uri: URI?, sa: SocketAddress?, ioe: IOException?) {
-                ProxyPool.dropCurrent(sa)
-            }
-        }).connectTimeout(5, TimeUnit.SECONDS).build()
-
-//        client = builder.build()
+        client = builder.build()
     }
 
     fun syncRequest(url: String): String? {
@@ -63,7 +63,7 @@ object HttpRequester {
                 response = call.execute()
             } catch (e: Exception) {
                 Log.e("request error $e: ${e.message}")
-                ProxyPool.dropCurrent()
+                proxy.dropCurrent()
                 times--
                 continue
             }

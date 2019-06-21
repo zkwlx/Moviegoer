@@ -1,5 +1,6 @@
 package com.moviegoer
 
+import com.moviegoer.db.DocumentParser
 import com.moviegoer.db.MongoPersistency
 import com.moviegoer.http.HttpRequester
 import com.moviegoer.http.UrlProvider
@@ -12,6 +13,11 @@ import kotlin.random.Random
 class MovieBriefCrawler {
 
     fun start() = runBlocking {
+
+        val proxy = ProxyPool()
+        val requester = HttpRequester(proxy)
+        val parser = DocumentParser()
+
         var offset = 0
         var isRetry = false
         var url = ""
@@ -28,18 +34,18 @@ class MovieBriefCrawler {
                 break
             }
             // 获取 url 的 http 请求返回值
-            val content = HttpRequester.syncRequest(url)
+            val content = requester.syncRequest(url)
             if (content == null) {
-                ProxyPool.dropCurrent()
+                proxy.dropCurrent()
                 isRetry = true
                 Log.e("请求失败，重试！content == null： $url")
                 continue
             }
             // 将 json 解析成 document list
-            val docList = MongoPersistency.parseToBriefsList(content)
+            val docList = parser.parseToBriefsList(content)
             if (docList == null) {
-                ProxyPool.dropCurrent()
-                HttpRequester.resetClient()
+                proxy.dropCurrent()
+                requester.resetClient()
                 isRetry = true
                 Log.e("解析失败，重试！url:$url, content:$content")
                 continue
@@ -59,14 +65,6 @@ class MovieBriefCrawler {
             }
             // 随机延迟
             delay(Random.nextLong(500, 3000))
-
-//            if (loopTimes > 521) {
-//                loopTimes = 0
-//                HttpRequester.resetClient()
-//                Log.i("请求好多次了，休息一下~")
-//                // 每 300 次休息1分钟
-//                delay(60000)
-//            } else {
         }
     }
 }

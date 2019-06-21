@@ -1,7 +1,7 @@
 package com.moviegoer
 
+import com.moviegoer.db.DocumentParser
 import com.moviegoer.db.MongoPersistency
-import com.moviegoer.db.MongoPersistency.ERROR_MSG
 import com.moviegoer.http.HttpRequester
 import com.moviegoer.proxy.ProxyPool
 import com.moviegoer.utils.Log
@@ -27,6 +27,10 @@ class MovieDetailCrawler {
 
     private suspend fun start() {
 
+        val proxy = ProxyPool()
+        val requester = HttpRequester(proxy)
+        val parser = DocumentParser()
+
         var isRetry = false
         var url = ""
 
@@ -46,23 +50,23 @@ class MovieDetailCrawler {
                 break
             }
             // 获取 url 的 http 请求返回值
-            val content = HttpRequester.syncRequest(url)
+            val content = requester.syncRequest(url)
             if (content == null) {
-                ProxyPool.dropCurrent()
+                proxy.dropCurrent()
                 isRetry = true
                 Log.e("请求失败，重试！content == null： $url")
                 continue
             }
             // 将 json 解析成 document list
-            val doc = MongoPersistency.parseToDetail(content)
-            when (doc[ERROR_MSG]) {
+            val doc = parser.parseToDetail(content)
+            when (doc[parser.ERROR_MSG]) {
                 "页面不存在" -> {
                     Log.e("页面不存在，跳过！url:$url")
                     continue@loop
                 }
                 "Json 解析失败" -> {
-                    ProxyPool.dropCurrent()
-                    HttpRequester.resetClient()
+                    proxy.dropCurrent()
+                    requester.resetClient()
                     isRetry = true
                     Log.e("解析失败，重试！url:$url, content:$content")
                     continue@loop
