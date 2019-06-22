@@ -1,6 +1,7 @@
 package com.moviegoer.http
 
 import com.demo.Utils
+import com.moviegoer.USE_PROXY
 import com.moviegoer.proxy.ProxyPool
 import com.moviegoer.utils.Log
 import okhttp3.*
@@ -19,23 +20,25 @@ class HttpRequester(val proxy: ProxyPool) {
     }
 
     fun resetClient() {
-//        client = builder.proxySelector(object : ProxySelector() {
-//            override fun select(uri: URI?): MutableList<Proxy> {
-//                val proxy = proxy.get()
-//                Log.i("proxy: $proxy")
-//                return if (proxy == null) {
-//                    mutableListOf()
-//                } else {
-//                    mutableListOf(proxy)
-//                }
-//            }
-//
-//            override fun connectFailed(uri: URI?, sa: SocketAddress?, ioe: IOException?) {
-//                proxy.dropCurrent(sa)
-//            }
-//        }).connectTimeout(5, TimeUnit.SECONDS).build()
+        if (USE_PROXY) {
+            client = builder.proxySelector(object : ProxySelector() {
+                override fun select(uri: URI?): MutableList<Proxy> {
+                    val proxy = proxy.get()
+                    Log.i("proxy: $proxy")
+                    return if (proxy == null) {
+                        mutableListOf()
+                    } else {
+                        mutableListOf(proxy)
+                    }
+                }
 
-        client = builder.build()
+                override fun connectFailed(uri: URI?, sa: SocketAddress?, ioe: IOException?) {
+                    proxy.dropCurrent(sa)
+                }
+            }).connectTimeout(5, TimeUnit.SECONDS).build()
+        } else {
+            client = builder.build()
+        }
     }
 
     fun syncRequest(url: String): String? {

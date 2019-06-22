@@ -30,11 +30,10 @@ class DocumentParser {
         return docList
     }
 
-
     fun parseToDetail(content: String): Document {
         var started = false
         val jsonString = StringBuilder()
-        var document = Document()
+        val document = Document()
         content.lineSequence().forEach { line ->
             if (started) {
                 if (line == "</script>")
@@ -51,17 +50,41 @@ class DocumentParser {
             return document
         }
         val finalJson = jsonString.toString()
+        return parseToDoc(finalJson)
+    }
+
+    private fun parseToDoc(json: String): Document {
+        var finalJson = json
+        var document = Document()
         try {
             document = Document.parse(finalJson)
             document.remove("@context")
             val duration = document["duration"] as String
             document["duration"] = parseToMinute(duration)
         } catch (e: Exception) {
-            Log.e("------error json----\n$finalJson")
-            e.printStackTrace()
+            if (finalJson.startsWith("{")) {
+                val size = finalJson.length
+                finalJson = fixJsonStr(finalJson)
+                if (size > finalJson.length) {
+                    parseToDoc(finalJson)
+                }
+            }
+            Log.e("------error json----${e.message}\n$finalJson")
             document[ERROR_MSG] = "Json 解析失败"
         }
         return document
+    }
+
+    private val illegalCharArray = arrayOf('\\', '\n', '\b', '\r', '\t')
+
+    private fun fixJsonStr(s: String): String {
+        val sb = StringBuilder()
+        s.forEach {
+            if (it !in illegalCharArray) {
+                sb.append(it)
+            }
+        }
+        return sb.toString()
     }
 
     private val digitRegex = Regex("[0-9]+")

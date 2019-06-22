@@ -68,7 +68,7 @@ class MovieDetailCrawler {
                     proxy.dropCurrent()
                     requester.resetClient()
                     isRetry = true
-                    Log.e("解析失败，重试！url:$url, content:$content")
+                    Log.e("解析失败，重试！url:$url")
                     continue@loop
                 }
             }
