@@ -1,5 +1,6 @@
 package com.moviegoer
 
+import com.mongodb.client.FindIterable
 import com.moviegoer.db.DocumentParser
 import com.moviegoer.db.MongoPersistency
 import com.moviegoer.http.HttpRequester
@@ -10,7 +11,7 @@ import java.net.URL
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
-class MovieDetailCrawler {
+class MovieDetailFixCrawler {
 
     fun startParallel() = runBlocking {
         val jobs = mutableListOf<Job>()
@@ -50,11 +51,6 @@ class MovieDetailCrawler {
                 Log.i("爬取结束 --> ${Thread.currentThread().name}")
                 break
             }
-            val u = URL(url)
-            if (MongoPersistency.isExist(u.path)) {
-                Log.i("跳过，已存在: $url")
-                continue
-            }
             // 获取 url 的 http 请求返回值
             val content = requester.syncRequest(url)
             if (content == null) {
@@ -63,6 +59,14 @@ class MovieDetailCrawler {
                 Log.e("请求失败，重试！content == null： $url")
                 continue
             }
+
+            val u = URL(url)
+            val findIterable = MongoPersistency.findDetail(u.path)
+            findIterable.forEach {
+
+            }
+
+
             // 将 json 解析成 document list
             val doc = parser.parseToDetail(content)
             when (doc[parser.ERROR_MSG]) {

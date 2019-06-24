@@ -1,9 +1,6 @@
 package com.moviegoer.db
 
-import com.mongodb.client.MongoClients
-import com.mongodb.client.MongoCollection
-import com.mongodb.client.MongoCursor
-import com.mongodb.client.MongoDatabase
+import com.mongodb.client.*
 import com.moviegoer.utils.Log
 import org.bson.Document
 
@@ -43,8 +40,19 @@ object MongoPersistency {
         colBrief.find().projection(Document("url", 1).append("_id", 0)).iterator()
     }
 
+    fun isExist(urlPath: String): Boolean {
+        val filter = Document("url", urlPath)
+        val count = colDetail.find(filter).count()
+        return count > 0
+    }
+
+    fun findDetail(urlPath: String): FindIterable<Document> {
+        val filter = Document("url", urlPath)
+        return colDetail.find(filter)
+    }
+
     fun nextBrief(): Document? {
-        synchronized(this){
+        synchronized(this) {
             return briefIterator.tryNext()
         }
     }

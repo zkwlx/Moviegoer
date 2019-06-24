@@ -34,23 +34,41 @@ class DocumentParser {
         var started = false
         val jsonString = StringBuilder()
         val document = Document()
-        content.lineSequence().forEach { line ->
-            if (started) {
-                if (line == "</script>")
-                    return@forEach
-                else
-                    jsonString.append(line)
-            } else if (line == "<script type=\"application/ld+json\">") {
-                started = true
-            } else if (line.contains("页面不存在")) {
-                document[ERROR_MSG] = "页面不存在"
+        run eachFor@{
+            content.lineSequence().forEach { line ->
+                if (started) {
+                    if (line.contains("</script>"))
+                        return@eachFor
+                    else
+                        jsonString.append(line)
+                } else if (line.contains("<script type=\"application/ld+json\">")) {
+                    started = true
+                } else if (line.contains("页面不存在")) {
+                    document[ERROR_MSG] = "页面不存在"
+                }
             }
         }
+
         if (document.isNotEmpty()) {
             return document
         }
         val finalJson = jsonString.toString()
         return parseToDoc(finalJson)
+    }
+
+    val countryRegex = Regex("<span class=\"pl\">制片国家/地区:</span>(.*)<br/>")
+    fun parseToCountry(content: String): Array<String> {
+        var countryArray = emptyArray<String>()
+        run eachFor@{
+            content.lineSequence().forEach { line ->
+                val result = countryRegex.find(line)
+                if (result != null) {
+                    countryArray = result.value.split("/").map { it.trim() }.toTypedArray()
+                    return@eachFor
+                }
+            }
+        }
+        return countryArray
     }
 
     private fun parseToDoc(json: String): Document {
@@ -66,10 +84,12 @@ class DocumentParser {
                 val size = finalJson.length
                 finalJson = fixJsonStr(finalJson)
                 if (size > finalJson.length) {
-                    parseToDoc(finalJson)
+                    return parseToDoc(finalJson)
                 }
+                Log.e("------fix error-----\n$finalJson")
+            } else {
+                Log.e("------error json----${e.message}\n$finalJson")
             }
-            Log.e("------error json----${e.message}\n$finalJson")
             document[ERROR_MSG] = "Json 解析失败"
         }
         return document

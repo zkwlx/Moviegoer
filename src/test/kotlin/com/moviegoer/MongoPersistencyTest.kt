@@ -36,4 +36,11 @@ class MongoPersistencyTest {
         }
 
     }
+
+    @Test
+    fun isExistTest() {
+        val path = "/subject/30403967/"
+        assert(MongoPersistency.isExist(path))
+        assert(!MongoPersistency.isExist("/subject/123456/"))
+    }
 }
