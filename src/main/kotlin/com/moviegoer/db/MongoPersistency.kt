@@ -53,9 +53,18 @@ object MongoPersistency {
         return colDetail.find(filter)
     }
 
-    fun setAnyDetail(urlPath: String, year: Pair<String, Int>, countrys: Pair<String, List<String>>) {
+    fun setAnyDetail(urlPath: String, year: Pair<String, Int>?, countrys: Pair<String, List<String>>?) {
         val filter = Document("url", urlPath)
-        colDetail.updateMany(filter, combine(set(year.first, year.second), pushEach(countrys.first, countrys.second)))
+        val bsons = arrayListOf<Bson>()
+        if (year != null) {
+            bsons.add(set(year.first, year.second))
+        }
+        if (countrys != null) {
+            bsons.add(pushEach(countrys.first, countrys.second))
+        }
+        if (bsons.isNotEmpty()) {
+            colDetail.updateMany(filter, combine(bsons))
+        }
     }
 
     fun nextBrief(): Document? {

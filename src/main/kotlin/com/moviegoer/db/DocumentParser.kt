@@ -58,13 +58,18 @@ class DocumentParser {
 
     val countryRegex = Regex("<span class=\"pl\">制片国家/地区:</span>(.*)<br/>")
 
-    fun parseToCountry(content: String): List<String>? {
+    fun parseToCountry(content: String): List<String> {
         var countryList = emptyList<String>()
         run eachFor@{
             content.lineSequence().forEach { line ->
                 if (line.contains("页面不存在")) {
-                    return null
+                    countryList = arrayListOf("页面不存在")
+                    return countryList
+                } else if (line.contains("检测到有异常请求从你的 IP 发出")) {
+                    countryList = arrayListOf("IP 异常")
+                    return countryList
                 }
+
                 val result = countryRegex.find(line)
                 if (result != null) {
                     countryList = result.groupValues[1].split("/").map { it.trim() }.toList()
