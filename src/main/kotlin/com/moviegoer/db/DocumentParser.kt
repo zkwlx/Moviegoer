@@ -57,18 +57,22 @@ class DocumentParser {
     }
 
     val countryRegex = Regex("<span class=\"pl\">制片国家/地区:</span>(.*)<br/>")
-    fun parseToCountry(content: String): Array<String> {
-        var countryArray = emptyArray<String>()
+
+    fun parseToCountry(content: String): List<String>? {
+        var countryList = emptyList<String>()
         run eachFor@{
             content.lineSequence().forEach { line ->
+                if (line.contains("页面不存在")) {
+                    return null
+                }
                 val result = countryRegex.find(line)
                 if (result != null) {
-                    countryArray = result.value.split("/").map { it.trim() }.toTypedArray()
+                    countryList = result.groupValues[1].split("/").map { it.trim() }.toList()
                     return@eachFor
                 }
             }
         }
-        return countryArray
+        return countryList
     }
 
     private fun parseToDoc(json: String): Document {

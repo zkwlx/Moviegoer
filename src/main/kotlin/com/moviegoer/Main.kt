@@ -5,6 +5,7 @@ var USE_PROXY = true
 fun main() {
 //    MovieBriefCrawler().start()
 
-    MovieDetailCrawler().startParallel()
+//    MovieDetailCrawler().startParallel()
 
+    MovieDetailFixCrawler().startParallel()
 }

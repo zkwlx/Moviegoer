@@ -1,6 +1,5 @@
 package com.moviegoer
 
-import com.mongodb.client.FindIterable
 import com.moviegoer.db.DocumentParser
 import com.moviegoer.db.MongoPersistency
 import com.moviegoer.http.HttpRequester
@@ -8,14 +7,13 @@ import com.moviegoer.proxy.ProxyPool
 import com.moviegoer.utils.Log
 import kotlinx.coroutines.*
 import java.net.URL
-import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
 class MovieDetailFixCrawler {
 
     fun startParallel() = runBlocking {
         val jobs = mutableListOf<Job>()
-        repeat(5) {
+        repeat(10) {
             jobs.add(GlobalScope.launch {
                 start()
             })
@@ -24,8 +22,6 @@ class MovieDetailFixCrawler {
             it.join()
         }
     }
-
-    private var totalCount: AtomicInteger = AtomicInteger(0)
 
     private suspend fun start() {
 
@@ -59,39 +55,34 @@ class MovieDetailFixCrawler {
                 Log.e("请求失败，重试！content == null： $url")
                 continue
             }
-
-            val u = URL(url)
-            val findIterable = MongoPersistency.findDetail(u.path)
-            findIterable.forEach {
-
-            }
-
-
             // 将 json 解析成 document list
-            val doc = parser.parseToDetail(content)
-            when (doc[parser.ERROR_MSG]) {
-                "页面不存在" -> {
-                    Log.e("页面不存在，跳过！url:$url")
-                    continue@loop
-                }
-                "Json 解析失败" -> {
-                    proxy.dropCurrent()
-                    requester.resetClient()
-                    isRetry = true
-                    Log.e("解析失败，重试！url:$url")
-                    continue@loop
-                }
+            val countryList = parser.parseToCountry(content)
+            if (countryList == null) {
+                Log.i("页面不存在：$url")
+                continue
             }
-            MongoPersistency.insertDetail(doc)
+            val countryStr = countryList.reduce { acc, s -> "$acc, $s" }
+            Log.i("国家列表：$countryStr")
 
-            Log.i(doc.toJson())
-            val t = totalCount.incrementAndGet()
-            if (t % 500 == 0) {
-                Log.i("已经爬取 $t 个了！")
-            }
+            val path = URL(url).path
+            val year = findDateToYear(path)
+            Log.i("发布年份：$year")
+
+            MongoPersistency.setAnyDetail(path, Pair("yearPublished", year), Pair("country", countryList))
 
             // 随机延迟
             delay(Random.nextLong(300, 1000))
+        }
+    }
+
+    private fun findDateToYear(path: String): Int {
+        val findIterable = MongoPersistency.findDetail(path)
+        val doc = findIterable.first()
+        return if (doc != null) {
+            val date = doc["datePublished"] as String
+            date.split("-")[0].toInt()
+        } else {
+            -1
         }
     }
 

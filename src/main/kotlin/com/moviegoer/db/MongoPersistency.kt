@@ -1,8 +1,10 @@
 package com.moviegoer.db
 
 import com.mongodb.client.*
+import com.mongodb.client.model.Updates.*
 import com.moviegoer.utils.Log
 import org.bson.Document
+import org.bson.conversions.Bson
 
 object MongoPersistency {
 
@@ -49,6 +51,11 @@ object MongoPersistency {
     fun findDetail(urlPath: String): FindIterable<Document> {
         val filter = Document("url", urlPath)
         return colDetail.find(filter)
+    }
+
+    fun setAnyDetail(urlPath: String, year: Pair<String, Int>, countrys: Pair<String, List<String>>) {
+        val filter = Document("url", urlPath)
+        colDetail.updateMany(filter, combine(set(year.first, year.second), pushEach(countrys.first, countrys.second)))
     }
 
     fun nextBrief(): Document? {
