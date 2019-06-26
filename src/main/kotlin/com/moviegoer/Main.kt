@@ -1,11 +1,11 @@
 package com.moviegoer
 
-var USE_PROXY = true
+var USE_PROXY = false
 
 fun main() {
 //    MovieBriefCrawler().start()
 
-//    MovieDetailCrawler().startParallel()
+    MovieDetailCrawler().startParallel()
 
-    MovieDetailFixCrawler().startParallel()
+//    MovieDetailFixCrawler().startParallel()
 }

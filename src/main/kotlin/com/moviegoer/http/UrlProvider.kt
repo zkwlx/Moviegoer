@@ -2,6 +2,8 @@ package com.moviegoer.http
 
 object UrlProvider {
 
+    //TODO INITIAL_RANK 和 MAX_RANK 是临时修改，只获取评分为 0~1 的电影
+
     // 等于 0 的时候，rank 从 1 分开始爬取，等于 -1 的时候，rank 从 0 分开始爬取
     private const val INITIAL_RANK = -1
 

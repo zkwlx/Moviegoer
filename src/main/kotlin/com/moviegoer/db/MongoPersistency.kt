@@ -1,6 +1,7 @@
 package com.moviegoer.db
 
 import com.mongodb.client.*
+import com.mongodb.client.model.Filters.eq
 import com.mongodb.client.model.Updates.*
 import com.moviegoer.utils.Log
 import org.bson.Document
@@ -39,7 +40,8 @@ object MongoPersistency {
     }
 
     private val briefIterator: MongoCursor<Document> by lazy {
-        colBrief.find().projection(Document("url", 1).append("_id", 0)).iterator()
+        //TODO rate 这里是临时修改，只获取没有评分的电影
+        colBrief.find(eq("rate","")).projection(Document("url", 1).append("_id", 0)).iterator()
     }
 
     fun isExist(urlPath: String): Boolean {

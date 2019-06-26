@@ -6,6 +6,7 @@ import com.moviegoer.http.HttpRequester
 import com.moviegoer.proxy.ProxyPool
 import com.moviegoer.utils.Log
 import kotlinx.coroutines.*
+import org.bson.Document
 import java.net.URL
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
@@ -78,6 +79,33 @@ class MovieDetailCrawler {
                     continue@loop
                 }
             }
+            // 解析出国家地区
+            val countryList = parser.parseToCountry(content)
+            if (countryList.isEmpty()) {
+                Log.i("========> $url ---> $content")
+            } else {
+                if (countryList[0] == "页面不存在") {
+                    Log.i("页面不存在：$url")
+                    continue@loop
+                } else if (countryList[0] == "IP 异常") {
+                    proxy.dropCurrent()
+                    isRetry = true
+                    Log.e("请求失败，重试！content == null： $url")
+                    continue@loop
+                }
+            }
+            var countryStr = "empty"
+            if (countryList.isNotEmpty()) {
+                countryStr = countryList.reduce { acc, s -> "$acc, $s" }
+                doc["country"] = countryList
+            }
+
+            val year = findDateToYear(doc)
+            year?.let {
+                doc["yearPublished"] = year
+            }
+            Log.i("国家列表：$countryStr, 发布年份：$year, $url")
+
             MongoPersistency.insertDetail(doc)
 
             Log.i(doc.toJson())
@@ -89,6 +117,12 @@ class MovieDetailCrawler {
             // 随机延迟
             delay(Random.nextLong(300, 1000))
         }
+    }
+
+    private fun findDateToYear(doc: Document): Int? {
+        val value = doc["datePublished"] ?: return -1
+        val date = value as String
+        return date.split("-")[0].toIntOrNull()
     }
 
 }
