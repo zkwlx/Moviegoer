@@ -57,14 +57,18 @@ class MovieDetailFixCrawler {
             }
             // 将 json 解析成 document list
             val countryList = parser.parseToCountry(content)
-            if (countryList[0] == "页面不存在") {
-                Log.i("页面不存在：$url")
-                continue
-            } else if (countryList[0] == "IP 异常") {
-                proxy.dropCurrent()
-                isRetry = true
-                Log.e("请求失败，重试！content == null： $url")
-                continue
+            if (countryList.isEmpty()) {
+                Log.i("===> $url ---> $content")
+            } else {
+                if (countryList[0] == "页面不存在") {
+                    Log.i("页面不存在：$url")
+                    continue
+                } else if (countryList[0] == "IP 异常") {
+                    proxy.dropCurrent()
+                    isRetry = true
+                    Log.e("请求失败，重试！content == null： $url")
+                    continue
+                }
             }
             val path = URL(url).path
             val year = findDateToYear(path)
@@ -74,9 +78,7 @@ class MovieDetailFixCrawler {
             }
             var countryDoc: Pair<String, List<String>>? = null
             var countryStr = "empty"
-            if (countryList.isEmpty()) {
-                Log.i("===> $url ---> ${content.substring(0, 1024)}")
-            } else {
+            if (countryList.isNotEmpty()) {
                 countryStr = countryList.reduce { acc, s -> "$acc, $s" }
                 countryDoc = Pair("country", countryList)
             }

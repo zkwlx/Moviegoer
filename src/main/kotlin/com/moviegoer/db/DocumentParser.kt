@@ -65,7 +65,9 @@ class DocumentParser {
                 if (line.contains("页面不存在")) {
                     countryList = arrayListOf("页面不存在")
                     return countryList
-                } else if (line.contains("检测到有异常请求从你的 IP 发出")) {
+                } else if (line.contains("检测到有异常请求从你的 IP 发出")
+                    || line.contains("window.location.href=\"https://sec.douban.com/")
+                ) {
                     countryList = arrayListOf("IP 异常")
                     return countryList
                 }
