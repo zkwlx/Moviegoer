@@ -6,7 +6,7 @@ object UrlProvider {
     private const val INITIAL_RANK = -1
 
     // 分数分为，等于 9 时，最大分数小于 10
-    private const val MAX_RANK = 9
+    private const val MAX_RANK = 0
 
     private var countryIndex = 0
     private var rank = INITIAL_RANK
