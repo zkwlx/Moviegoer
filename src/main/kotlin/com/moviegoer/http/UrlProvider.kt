@@ -2,10 +2,13 @@ package com.moviegoer.http
 
 object UrlProvider {
 
-    private const val INITIAL_RANK = 0
+    // 等于 0 的时候，rank 从 1 分开始爬取，等于 -1 的时候，rank 从 0 分开始爬取
+    private const val INITIAL_RANK = -1
+
+    // 分数分为，等于 9 时，最大分数小于 10
+    private const val MAX_RANK = 9
 
     private var countryIndex = 0
-    // 先排除 0~1 分的电影
     private var rank = INITIAL_RANK
 
     /**
@@ -31,7 +34,7 @@ object UrlProvider {
      * 断点续传功能
      */
     fun setStartPoint(countryIndex: Int, rank: Int): UrlProvider {
-        if (countryIndex >= COUNTRY_LIST.size || rank >= 9) {
+        if (countryIndex >= COUNTRY_LIST.size || rank >= MAX_RANK) {
             throw IllegalArgumentException("传入的参数有误，countryIndex：$countryIndex，rank：$rank")
         }
         UrlProvider.countryIndex = countryIndex
@@ -45,7 +48,7 @@ object UrlProvider {
     }
 
     private fun nextRankOrCountry() {
-        if (rank == 9) {
+        if (rank == MAX_RANK) {
             countryIndex += 1
             rank = INITIAL_RANK + 1
         } else {
@@ -59,10 +62,6 @@ object UrlProvider {
                 "&tags=电影" +
                 "&start=$offset" +
                 "&countries=$country"
-    }
-
-    private fun nextRank() {
-        rank += 1
     }
 
     private fun makeUrl(rangeBegin: Int, rangeFinal: Int, offset: Int): String {
