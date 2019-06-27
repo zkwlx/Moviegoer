@@ -4,44 +4,44 @@ import java.util.*
 
 object UrlProvider {
 
-    //TODO INITIAL_RANK 和 MAX_RANK 是临时修改，只获取评分为 0~1 的电影
-
     // 等于 0 的时候，rank 从 1 分开始爬取，等于 -1 的时候，rank 从 0 分开始爬取
     private const val INITIAL_RANK = 0
 
     // 分数分为，等于 9 时，最大分数小于 10
-    private const val MAX_RANK = 0
+    private const val MAX_RANK = 9
 
     private val INITIAL_YEAR = Calendar.getInstance().get(Calendar.YEAR)
     private const val MIN_YEAR = 1900
 
     private var countryIndex = 0
     private var rank = INITIAL_RANK
+
+    //TODO INITIAL_RANK 和 MAX_RANK 是临时修改，只获取评分为 0~1 的电影
     private var year = INITIAL_YEAR + 1
 
     /**
      * 根据 offset 自动创建下一个 url，当返回空字符串时，说明遍历结束，没有 next 了
      */
-//    fun next(offset: Int): String {
-//        if (offset == 0) {
-//            nextRankOrCountry()
-//        }
-//        return if (countryIndex >= COUNTRY_LIST.size) ""
-//        else makeUrl(
-//            rank,
-//            rank + 1,
-//            COUNTRY_LIST[countryIndex],
-//            offset
-//        )
-//
-//        //用于查看 IP 代理是否生效
-////        return "http://pv.sohu.com/cityjson"
-//    }
+    fun next(offset: Int): String {
+        if (offset == 0) {
+            nextRankOrCountry()
+        }
+        return if (countryIndex >= COUNTRY_LIST.size) ""
+        else makeUrl(
+            rank,
+            rank + 1,
+            COUNTRY_LIST[countryIndex],
+            offset
+        )
+
+        //用于查看 IP 代理是否生效
+//        return "http://pv.sohu.com/cityjson"
+    }
 
     /**
      * 根据 offset 自动创建下一个 url，当返回空字符串时，说明遍历结束，没有 next 了
      */
-    fun next(offset: Int): String {
+    fun nextForYear(offset: Int): String {
         if (offset == 0) {
             nextCountryOrYear()
         }
@@ -86,7 +86,11 @@ object UrlProvider {
             year = INITIAL_YEAR
             countryIndex += 1
         } else {
-            --year
+            if (year <= 2000) {
+                year = MIN_YEAR
+            } else {
+                --year
+            }
         }
     }
 
@@ -98,11 +102,19 @@ object UrlProvider {
     }
 
     private fun makeUrl(rangeBegin: Int, rangeFinal: Int, country: String, offset: Int, year: Int): String {
-        return "https://movie.douban.com/j/new_search_subjects?range=$rangeBegin,$rangeFinal" +
-                "&start=$offset" +
-                "&countries=$country" +
-                "&year_range=$year,$year" +
-                "&tags=电影&sort=R"
+        if (year == MIN_YEAR) {
+            return "https://movie.douban.com/j/new_search_subjects?range=$rangeBegin,$rangeFinal" +
+                    "&start=$offset" +
+                    "&countries=$country" +
+                    "&year_range=$year,1999" +
+                    "&tags=电影&sort=R"
+        } else {
+            return "https://movie.douban.com/j/new_search_subjects?range=$rangeBegin,$rangeFinal" +
+                    "&start=$offset" +
+                    "&countries=$country" +
+                    "&year_range=$year,$year" +
+                    "&tags=电影&sort=R"
+        }
     }
 
 
