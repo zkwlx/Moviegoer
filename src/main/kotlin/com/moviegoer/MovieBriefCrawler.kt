@@ -64,7 +64,7 @@ class MovieBriefCrawler {
                 }
             }
             // 随机延迟
-            delay(Random.nextLong(500, 3000))
+            delay(Random.nextLong(300, 1000))
         }
     }
 }
