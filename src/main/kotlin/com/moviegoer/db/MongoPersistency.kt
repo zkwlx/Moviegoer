@@ -41,7 +41,10 @@ object MongoPersistency {
 
     private val briefIterator: MongoCursor<Document> by lazy {
         //TODO rate 这里是临时修改，只获取没有评分的电影
-        colBrief.find(eq("rate","")).projection(Document("url", 1).append("_id", 0)).iterator()
+        colBrief.find(eq("rate", ""))
+            .noCursorTimeout(true)
+            .projection(Document("url", 1).append("_id", 0))
+            .iterator()
     }
 
     fun isExist(urlPath: String): Boolean {

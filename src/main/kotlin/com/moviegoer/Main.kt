@@ -5,11 +5,11 @@ import com.moviegoer.utils.Log
 var USE_PROXY = true
 
 fun main() {
-    MovieBriefCrawler().start()
+//    MovieBriefCrawler().start()
 
-    Log.i("----------------------brief end, start to detail -------------------")
 
-//    MovieDetailCrawler().startParallel()
+    MovieDetailCrawler().startParallel()
+    Log.i("---------------------- end -------------------")
 
 //    MovieDetailFixCrawler().startParallel()
 }

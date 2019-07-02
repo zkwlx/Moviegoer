@@ -15,7 +15,7 @@ class MovieDetailCrawler {
 
     fun startParallel() = runBlocking {
         val jobs = mutableListOf<Job>()
-        repeat(5) {
+        repeat(8) {
             jobs.add(GlobalScope.launch {
                 start()
             })
@@ -51,8 +51,7 @@ class MovieDetailCrawler {
                 Log.i("爬取结束 --> ${Thread.currentThread().name}")
                 break
             }
-            val u = URL(url)
-            if (MongoPersistency.isExist(u.path)) {
+            if (MongoPersistency.isExist(URL(url).path)) {
                 Log.i("跳过，已存在: $url")
                 continue
             }
@@ -104,18 +103,13 @@ class MovieDetailCrawler {
             year?.let {
                 doc["yearPublished"] = year
             }
-            Log.i("国家列表：$countryStr, 发布年份：$year, $url")
 
             MongoPersistency.insertDetail(doc)
 
-            Log.i(doc.toJson())
-            val t = totalCount.incrementAndGet()
-            if (t % 500 == 0) {
-                Log.i("已经爬取 $t 个了！")
-            }
+            Log.i("${totalCount.incrementAndGet()} | 国家列表：$countryStr, 发布年份：$year, $url")
 
             // 随机延迟
-            delay(Random.nextLong(300, 1000))
+            delay(Random.nextLong(150, 800))
         }
     }
 

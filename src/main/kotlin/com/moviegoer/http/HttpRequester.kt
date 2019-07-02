@@ -35,7 +35,7 @@ class HttpRequester(val proxy: ProxyPool) {
                 override fun connectFailed(uri: URI?, sa: SocketAddress?, ioe: IOException?) {
                     proxy.dropCurrent(sa)
                 }
-            }).connectTimeout(5, TimeUnit.SECONDS).build()
+            }).connectTimeout(3, TimeUnit.SECONDS).build()
         } else {
             client = builder.build()
         }
@@ -59,7 +59,7 @@ class HttpRequester(val proxy: ProxyPool) {
             .build()
         var response: Response? = null
         //TODO 增加重试功能，失败抛异常
-        var times = 20
+        var times = 25
         while (times > 0) {
             val call = client.newCall(request)
             try {
